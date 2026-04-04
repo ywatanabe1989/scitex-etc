@@ -35,6 +35,9 @@ Issues = "https://github.com/ywatanabe1989/scitex-etc/issues"
 [project.entry-points."scitex_dev.docs"]
 scitex-etc = "scitex_etc"
 
+[project.entry-points."scitex_dev.skills"]
+scitex-etc = "scitex_etc"
+
 [tool.hatch.build.targets.wheel]
 packages = ["src/scitex_etc"]
 
