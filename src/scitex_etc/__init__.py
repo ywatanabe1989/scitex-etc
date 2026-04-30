@@ -8,6 +8,16 @@ This module provides utility functions that don't fit into other categories,
 such as keyboard input handling for interactive programs.
 """
 
+try:
+    from importlib.metadata import version as _v, PackageNotFoundError
+    try:
+        __version__ = _v("scitex-etc")
+    except PackageNotFoundError:
+        __version__ = "0.0.0+local"
+    del _v, PackageNotFoundError
+except ImportError:  # pragma: no cover — only on ancient Pythons
+    __version__ = "0.0.0+local"
+
 from . import wait_key as _wait_key_mod
 from .wait_key import count
 from .wait_key import wait_key as _wait_key_func
