@@ -4,32 +4,45 @@ build-backend = "hatchling.build"
 
 [project]
 name = "scitex-etc"
-version = "0.1.1"
+version = "0.1.4"
 description = "Interactive keyboard input utilities (wait_key, count)"
 readme = "README.md"
-license = "AGPL-3.0"
+license = "AGPL-3.0-only"
 requires-python = ">=3.10"
 authors = [
     { name = "Yusuke Watanabe" },
 ]
-dependencies = [
-    "readchar",
-]
-
-[project.optional-dependencies]
-# Bare install is the full package; [all] is provided for ecosystem-wide
-# consistency so `pip install scitex-*[all]` works uniformly.
-all = []
 classifiers = [
     "Development Status :: 4 - Beta",
     "Environment :: Console",
     "Intended Audience :: Science/Research",
-    "License :: OSI Approved :: GNU Affero General Public License v3",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
+]
+dependencies = [
+    "tomli; python_version<\"3.11\"",
+    "readchar",
+]
+
+[project.optional-dependencies]
+dev = [
+    "scitex-dev",
+    "pytest",
+    "pytest-cov",
+    "ruff",
+]
+docs = [
+    "sphinx>=7.0",
+    "sphinx-rtd-theme>=2.0",
+    "myst-parser>=2.0",
+    "sphinx-copybutton>=0.5",
+    "sphinx-autodoc-typehints>=1.25",
+]
+all = [
+    "scitex-etc[dev,docs]",
 ]
 
 [project.urls]
@@ -48,13 +61,6 @@ packages = ["src/scitex_etc"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-python_files = ["test_*.py"]
-addopts = "-v --tb=short"
 
-[tool.ruff]
-line-length = 88
-target-version = "py310"
-
-[tool.ruff.lint]
-select = ["E", "F", "W", "I"]
-ignore = ["E501"]
+[tool.scitex-linter]
+library_dirs = ["src", "tests", "examples"]
