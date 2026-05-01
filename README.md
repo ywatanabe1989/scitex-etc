@@ -68,7 +68,7 @@ count(5)
 
 `scitex-etc` is part of [**SciTeX**](https://scitex.ai). Install via
 the umbrella with `pip install scitex[etc]` to use as
-`scitex.etc` (Python).
+`scitex.etc` (Python) or `scitex etc ...` (CLI).
 
 >Four Freedoms for Research
 >
