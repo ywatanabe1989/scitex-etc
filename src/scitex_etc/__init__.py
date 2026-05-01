@@ -8,8 +8,11 @@ This module provides utility functions that don't fit into other categories,
 such as keyboard input handling for interactive programs.
 """
 
+from __future__ import annotations
+
 try:
     from importlib.metadata import version as _v, PackageNotFoundError
+
     try:
         __version__ = _v("scitex-etc")
     except PackageNotFoundError:
@@ -27,6 +30,6 @@ from .wait_key import wait_key as _wait_key_func
 # and `patch("scitex_etc.wait_key.readchar...")` to work.
 wait_key = _wait_key_mod
 
-__all__ = ["wait_key", "count"]
+__all__ = ["__version__", "wait_key", "count"]
 
 # EOF
