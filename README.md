@@ -47,7 +47,7 @@ count(5)          # Countdown timer
 
 ## 1 Interfaces
 
-<details>
+<details open>
 <summary><strong>Python API</strong></summary>
 
 <br>
