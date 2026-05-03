@@ -1,7 +1,8 @@
 ---
-name: python-api
-description: scitex-etc — Python API — see file body for details.
-tags: [scitex-etc, scitex-package]
+description: |
+  [TOPIC] Python API
+  [DETAILS] Public functions wait_key() and count() with signatures.
+tags: [scitex-etc-python-api]
 ---
 
 <!-- 02_python-api.md -->

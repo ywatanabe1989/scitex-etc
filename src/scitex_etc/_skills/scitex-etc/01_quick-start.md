@@ -1,7 +1,8 @@
 ---
-name: quick-start
-description: scitex-etc — Quick Start — see file body for details.
-tags: [scitex-etc, scitex-package]
+description: |
+  [TOPIC] Quick Start
+  [DETAILS] Install, import, and two usage snippets covering wait_key and count.
+tags: [scitex-etc-quick-start]
 ---
 
 <!-- 01_quick-start.md -->

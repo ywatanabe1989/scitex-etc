@@ -1,16 +1,17 @@
 ---
 name: scitex-etc
-description: Miscellaneous SciTeX utilities — terminal single-keypress helpers for interactive scripts. Public API (2 symbols) — `wait_key()` (block until any key is pressed; returns the character or key code) and `count()` (read keys in a loop and return tallies; useful for quick manual-labeling or progress scripts in terminals). No CLI, no MCP tools, intentionally minimal grab-bag surface. Drop-in replacement for `input()` (which requires Enter), hand-rolled `termios`+`tty.setraw()` recipes for unbuffered stdin, the `getch`/`getkey`/`readchar` PyPI packages, and bespoke keypress-tallying loops in experiment-control scripts. Use whenever the user asks to "pause the script until the user presses a key", "read a keypress without Enter", "implement a simple manual-count loop via keypresses", or mentions `wait_key`, `scitex.etc`, getch-style input.
-user-invocable: false
+description: |
+  [WHAT] Miscellaneous SciTeX utilities — terminal single-keypress helpers (`wait_key`, `count`) for interactive scripts.
+  [WHEN] Pausing a script until any key is pressed (without Enter), implementing a simple manual-count loop via keypresses, or any getch-style input need.
+  [HOW] `from scitex_etc import wait_key, count` — call `wait_key()` to block on a key, `count()` to tally keypresses.
+tags: [scitex-etc]
 primary_interface: python
 interfaces:
   python: 3
   cli: 0
   mcp: 0
   skills: 1
-  hook: 0
   http: 0
-tags: [scitex-etc, scitex-package]
 ---
 
 # scitex-etc
