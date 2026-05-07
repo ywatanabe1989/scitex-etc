@@ -38,13 +38,14 @@
 pip install scitex-etc
 ```
 
-## Quick Start
+## Architecture
 
-```python
-from scitex_etc import wait_key, count
-
-key = wait_key()  # Wait for a single keypress
-count(5)          # Countdown timer
+```
+scitex-etc/
+├── src/scitex_etc/
+│   ├── _wait_key.py     # cross-platform raw-stdin keypress
+│   └── _count.py        # countdown helper
+└── tests/
 ```
 
 ## 1 Interfaces
@@ -65,6 +66,26 @@ count(5)
 ```
 
 </details>
+
+## Demo
+
+```mermaid
+flowchart LR
+    User[User keypress] --> TTY{stdin is TTY?}
+    TTY -- yes --> Termios[termios raw mode]
+    TTY -- no --> Fallback[readline fallback]
+    Termios --> Key[key string]
+    Fallback --> Key
+```
+
+## Quick Start
+
+```python
+from scitex_etc import wait_key, count
+
+key = wait_key()  # Wait for a single keypress
+count(5)          # Countdown timer
+```
 
 ## Part of SciTeX
 
