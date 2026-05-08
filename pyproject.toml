@@ -29,7 +29,7 @@ dependencies = [
 
 [project.optional-dependencies]
 dev = [
-    "scitex-dev",
+    "scitex-dev>=0.11.5",
     "pytest",
     "pytest-cov",
     "ruff",
