@@ -9,7 +9,7 @@
 <p align="center"><b>Interactive keyboard input utilities for the SciTeX ecosystem.</b></p>
 
 <p align="center">
-  <a href="https://scitex-etc.readthedocs.io/">Full Documentation</a> · <code>pip install scitex-etc</code>
+  <a href="https://scitex-etc.readthedocs.io/">Full Documentation</a> · <code>uv pip install scitex-etc[all]</code>
 </p>
 
 <!-- scitex-badges:start -->
