@@ -24,4 +24,10 @@ htmlcov/
 env/
 venv/
 
+# scitex-dev local state — track the curated config only.
+.scitex/*
+!.scitex/dev/
+.scitex/dev/*
+!.scitex/dev/config.yaml
+
 docs/sphinx/_build/

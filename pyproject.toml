@@ -63,5 +63,10 @@ packages = ["src/scitex_etc"]
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 
+[tool.coverage.run]
+parallel = true
+source = ["scitex_etc"]
+concurrency = ["multiprocessing", "thread"]
+
 [tool.scitex-linter]
 library_dirs = ["src", "tests", "examples"]
