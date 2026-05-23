@@ -1,324 +1,235 @@
 #!/usr/bin/env python3
-# Timestamp: "2025-06-02 15:05:32 (ywatanabe)"
 # File: tests/scitex_etc/test_wait_key.py
 # ----------------------------------------
+"""Tests for scitex_etc.wait_key — real collaborators only, no mocks.
+
+PA-306: no ``unittest.mock``, no ``monkeypatch``. The SUT exposes injectable
+seams (``read_key``/``printer`` for ``wait_key``, ``printer``/``sleeper`` for
+``count``) that default to the real implementations. Tests pass hand-rolled
+fakes: a list-driven key source, a recording printer, a bounded sleeper, and a
+process fake that records ``terminate``/``kill`` calls.
+"""
+
 import inspect
 import os
-from unittest.mock import Mock, call, patch
 
 import pytest
 
 # Required for scitex_etc.wait_key module
 pytest.importorskip("readchar")
 
-__FILE__ = "./tests/scitex/etc/test_wait_key.py"
-__DIR__ = os.path.dirname(__FILE__)
 # ----------------------------------------
 
 
+class RecordingProcess:
+    """Process fake recording terminate()/kill() invocations."""
+
+    def __init__(self):
+        self.terminate_calls = 0
+        self.kill_calls = 0
+
+    def terminate(self):
+        self.terminate_calls += 1
+
+    def kill(self):
+        self.kill_calls += 1
+
+
+class RecordingPrinter:
+    """Callable that records every printed value in order."""
+
+    def __init__(self):
+        self.values = []
+
+    def __call__(self, value):
+        self.values.append(value)
+
+
+def keys_from(sequence):
+    """Return a zero-arg callable yielding the given keys in order."""
+    it = iter(sequence)
+
+    def _read_key():
+        return next(it)
+
+    return _read_key
+
+
+class BoundedSleeper:
+    """Sleep fake that records call count and stops a loop after `limit`."""
+
+    def __init__(self, limit):
+        self.limit = limit
+        self.calls = 0
+
+    def __call__(self, _seconds):
+        self.calls += 1
+        if self.calls >= self.limit:
+            raise KeyboardInterrupt("stop")
+
+
 class TestWaitKey:
-    """Tests for scitex_etc.wait_key module — one assertion per test."""
+    """wait_key: terminate-on-q, echo behaviour, kill restraint."""
 
-    # ------------------------------------------------------------------
-    # wait_key: basic q press
-    # ------------------------------------------------------------------
-    def test_wait_key_with_q_press_terminates_process(self):
+    def test_wait_key_with_q_press_terminates_process_once(self):
         # Arrange
         from scitex_etc.wait_key import wait_key
 
-        mock_process = Mock()
+        process = RecordingProcess()
         # Act
-        with patch("scitex_etc.wait_key.readchar.readchar", return_value="q"):
-            with patch("builtins.print"):
-                wait_key(mock_process)
+        wait_key(process, read_key=keys_from(["q"]), printer=RecordingPrinter())
         # Assert
-        assert mock_process.terminate.call_count == 1
+        assert process.terminate_calls == 1
 
-    def test_wait_key_with_q_press_prints_q_then_quit_message(self):
+    def test_wait_key_with_q_press_echoes_q_then_quit_message(self):
         # Arrange
         from scitex_etc.wait_key import wait_key
 
-        mock_process = Mock()
+        printer = RecordingPrinter()
         # Act
-        with patch("scitex_etc.wait_key.readchar.readchar", return_value="q"):
-            with patch("builtins.print") as mock_print:
-                wait_key(mock_process)
+        wait_key(RecordingProcess(), read_key=keys_from(["q"]), printer=printer)
         # Assert
-        assert mock_print.call_args_list == [call("q"), call("q was pressed.")]
+        assert printer.values == ["q", "q was pressed."]
 
-    # ------------------------------------------------------------------
-    # wait_key: multiple keys before q
-    # ------------------------------------------------------------------
     def test_wait_key_with_multiple_keys_terminates_after_q(self):
         # Arrange
         from scitex_etc.wait_key import wait_key
 
-        mock_process = Mock()
-        key_sequence = ["a", "b", "c", "q"]
+        process = RecordingProcess()
         # Act
-        with patch("scitex_etc.wait_key.readchar.readchar", side_effect=key_sequence):
-            with patch("builtins.print"):
-                wait_key(mock_process)
+        wait_key(
+            process,
+            read_key=keys_from(["a", "b", "c", "q"]),
+            printer=RecordingPrinter(),
+        )
         # Assert
-        assert mock_process.terminate.call_count == 1
+        assert process.terminate_calls == 1
 
-    def test_wait_key_with_multiple_keys_prints_all_keys_and_message(self):
+    def test_wait_key_with_multiple_keys_echoes_each_key_then_message(self):
         # Arrange
         from scitex_etc.wait_key import wait_key
 
-        mock_process = Mock()
-        key_sequence = ["a", "b", "c", "q"]
-        expected = [call("a"), call("b"), call("c"), call("q"), call("q was pressed.")]
+        printer = RecordingPrinter()
         # Act
-        with patch("scitex_etc.wait_key.readchar.readchar", side_effect=key_sequence):
-            with patch("builtins.print") as mock_print:
-                wait_key(mock_process)
+        wait_key(
+            RecordingProcess(),
+            read_key=keys_from(["a", "b", "c", "q"]),
+            printer=printer,
+        )
         # Assert
-        assert mock_print.call_args_list == expected
+        assert printer.values == ["a", "b", "c", "q", "q was pressed."]
 
-    # ------------------------------------------------------------------
-    # wait_key: special characters before q
-    # ------------------------------------------------------------------
     def test_wait_key_with_special_chars_terminates_after_q(self):
         # Arrange
         from scitex_etc.wait_key import wait_key
 
-        mock_process = Mock()
-        key_sequence = ["\n", "\t", " ", "1", "!", "q"]
+        process = RecordingProcess()
         # Act
-        with patch("scitex_etc.wait_key.readchar.readchar", side_effect=key_sequence):
-            with patch("builtins.print"):
-                wait_key(mock_process)
+        wait_key(
+            process,
+            read_key=keys_from(["\n", "\t", " ", "1", "!", "q"]),
+            printer=RecordingPrinter(),
+        )
         # Assert
-        assert mock_process.terminate.call_count == 1
+        assert process.terminate_calls == 1
 
-    def test_wait_key_with_special_chars_prints_all_keys(self):
+    def test_wait_key_with_special_chars_echoes_all_keys_then_message(self):
         # Arrange
         from scitex_etc.wait_key import wait_key
 
-        mock_process = Mock()
-        key_sequence = ["\n", "\t", " ", "1", "!", "q"]
-        expected = [
-            call("\n"),
-            call("\t"),
-            call(" "),
-            call("1"),
-            call("!"),
-            call("q"),
-            call("q was pressed."),
-        ]
+        printer = RecordingPrinter()
         # Act
-        with patch("scitex_etc.wait_key.readchar.readchar", side_effect=key_sequence):
-            with patch("builtins.print") as mock_print:
-                wait_key(mock_process)
+        wait_key(
+            RecordingProcess(),
+            read_key=keys_from(["\n", "\t", " ", "1", "!", "q"]),
+            printer=printer,
+        )
         # Assert
-        assert mock_print.call_args_list == expected
+        assert printer.values == ["\n", "\t", " ", "1", "!", "q", "q was pressed."]
 
-    # ------------------------------------------------------------------
-    # wait_key: case sensitivity — uppercase Q does not terminate
-    # ------------------------------------------------------------------
-    def test_wait_key_with_uppercase_q_then_lowercase_q_terminates_once(self):
+    def test_wait_key_with_uppercase_q_does_not_terminate_until_lowercase(self):
         # Arrange
         from scitex_etc.wait_key import wait_key
 
-        mock_process = Mock()
-        key_sequence = ["Q", "q"]
+        process = RecordingProcess()
         # Act
-        with patch("scitex_etc.wait_key.readchar.readchar", side_effect=key_sequence):
-            with patch("builtins.print"):
-                wait_key(mock_process)
+        wait_key(process, read_key=keys_from(["Q", "q"]), printer=RecordingPrinter())
         # Assert
-        assert mock_process.terminate.call_count == 1
+        assert process.terminate_calls == 1
 
-    def test_wait_key_with_uppercase_q_then_lowercase_q_prints_both(self):
+    def test_wait_key_with_uppercase_q_then_lowercase_echoes_both(self):
         # Arrange
         from scitex_etc.wait_key import wait_key
 
-        mock_process = Mock()
-        key_sequence = ["Q", "q"]
-        expected = [call("Q"), call("q"), call("q was pressed.")]
+        printer = RecordingPrinter()
         # Act
-        with patch("scitex_etc.wait_key.readchar.readchar", side_effect=key_sequence):
-            with patch("builtins.print") as mock_print:
-                wait_key(mock_process)
+        wait_key(RecordingProcess(), read_key=keys_from(["Q", "q"]), printer=printer)
         # Assert
-        assert mock_print.call_args_list == expected
+        assert printer.values == ["Q", "q", "q was pressed."]
 
-    # ------------------------------------------------------------------
-    # wait_key: does not call kill() — only terminate()
-    # ------------------------------------------------------------------
-    def test_wait_key_with_q_press_does_not_call_kill(self):
+    def test_wait_key_with_q_press_never_calls_kill(self):
         # Arrange
         from scitex_etc.wait_key import wait_key
 
-        mock_process = Mock()
+        process = RecordingProcess()
         # Act
-        with patch("scitex_etc.wait_key.readchar.readchar", return_value="q"):
-            with patch("builtins.print"):
-                wait_key(mock_process)
+        wait_key(process, read_key=keys_from(["q"]), printer=RecordingPrinter())
         # Assert
-        assert mock_process.kill.called is False
+        assert process.kill_calls == 0
 
-    # ------------------------------------------------------------------
-    # count: increments counter (uses KeyboardInterrupt to escape loop)
-    # ------------------------------------------------------------------
+
+class TestCount:
+    """count: incrementing values, sleep between prints."""
+
     def test_count_prints_incrementing_values_starting_at_zero(self):
         # Arrange
         from scitex_etc.wait_key import count
 
-        printed_values = []
-
-        def fake_print(value):
-            printed_values.append(value)
-            if len(printed_values) >= 5:
-                raise KeyboardInterrupt("stop")
-
-        # Act
-        with patch("scitex_etc.wait_key.time.sleep"):
-            with patch("builtins.print", side_effect=fake_print):
-                try:
-                    count()
-                except KeyboardInterrupt:
-                    pass
+        printer = RecordingPrinter()
+        # Act — BoundedSleeper raises KeyboardInterrupt to escape the loop
+        try:
+            count(printer=printer, sleeper=BoundedSleeper(limit=5))
+        except KeyboardInterrupt:
+            pass
         # Assert
-        assert printed_values == [0, 1, 2, 3, 4]
+        assert printer.values == [0, 1, 2, 3, 4]
 
-    def test_count_runs_until_keyboardinterrupt_is_raised(self):
+    def test_count_sleeps_between_each_printed_value(self):
         # Arrange
         from scitex_etc.wait_key import count
 
-        call_counter = {"n": 0}
-
-        def fake_print(value):
-            call_counter["n"] += 1
-            if call_counter["n"] >= 10:
-                raise KeyboardInterrupt("stop")
-
-        # Act
-        with patch("scitex_etc.wait_key.time.sleep"):
-            with patch("builtins.print", side_effect=fake_print):
-                try:
-                    count()
-                except KeyboardInterrupt:
-                    pass
+        sleeper = BoundedSleeper(limit=3)
+        # Act — BoundedSleeper raises KeyboardInterrupt to escape the loop
+        try:
+            count(printer=RecordingPrinter(), sleeper=sleeper)
+        except KeyboardInterrupt:
+            pass
         # Assert
-        assert call_counter["n"] == 10
+        assert sleeper.calls == 3
 
-    def test_count_calls_sleep_between_prints(self):
-        # Arrange
-        from scitex_etc.wait_key import count
 
-        printed = []
+class TestModuleStructure:
+    """Module exposes the documented public API."""
 
-        def fake_print(value):
-            printed.append(value)
-            if len(printed) >= 3:
-                raise KeyboardInterrupt("stop")
-
-        # Act
-        with patch("scitex_etc.wait_key.time.sleep") as mock_sleep:
-            with patch("builtins.print", side_effect=fake_print):
-                try:
-                    count()
-                except KeyboardInterrupt:
-                    pass
-        # Assert
-        assert mock_sleep.call_count == 2
-
-    # ------------------------------------------------------------------
-    # module structure
-    # ------------------------------------------------------------------
-    def test_module_exposes_readchar_attribute_for_patching(self):
+    def test_module_defines_callable_wait_key_function(self):
         # Arrange
         import scitex_etc.wait_key as module_under_test
 
         # Act
-        has_readchar = hasattr(module_under_test, "readchar")
-        # Assert
-        assert has_readchar is True
-
-    def test_module_exposes_callable_readchar_readchar(self):
-        # Arrange
-        import scitex_etc.wait_key as module_under_test
-
-        # Act
-        is_callable = callable(module_under_test.readchar.readchar)
+        is_callable = callable(getattr(module_under_test, "wait_key", None))
         # Assert
         assert is_callable is True
 
-    def test_module_exposes_multiprocessing_attribute(self):
+    def test_module_defines_callable_count_function(self):
         # Arrange
         import scitex_etc.wait_key as module_under_test
 
         # Act
-        has_mp = hasattr(module_under_test, "multiprocessing")
-        # Assert
-        assert has_mp is True
-
-    def test_module_exposes_multiprocessing_process_class(self):
-        # Arrange
-        import scitex_etc.wait_key as module_under_test
-
-        # Act
-        has_process = hasattr(module_under_test.multiprocessing, "Process")
-        # Assert
-        assert has_process is True
-
-    def test_module_exposes_time_attribute_for_patching(self):
-        # Arrange
-        import scitex_etc.wait_key as module_under_test
-
-        # Act
-        has_time = hasattr(module_under_test, "time")
-        # Assert
-        assert has_time is True
-
-    def test_module_exposes_callable_time_sleep(self):
-        # Arrange
-        import scitex_etc.wait_key as module_under_test
-
-        # Act
-        is_callable = callable(module_under_test.time.sleep)
+        is_callable = callable(getattr(module_under_test, "count", None))
         # Assert
         assert is_callable is True
 
-    def test_module_defines_wait_key_function(self):
-        # Arrange
-        import scitex_etc.wait_key as module_under_test
-
-        # Act
-        has_wait_key = hasattr(module_under_test, "wait_key")
-        # Assert
-        assert has_wait_key is True
-
-    def test_module_defines_count_function(self):
-        # Arrange
-        import scitex_etc.wait_key as module_under_test
-
-        # Act
-        has_count = hasattr(module_under_test, "count")
-        # Assert
-        assert has_count is True
-
-    def test_module_wait_key_is_callable(self):
-        # Arrange
-        import scitex_etc.wait_key as module_under_test
-
-        # Act
-        is_callable = callable(module_under_test.wait_key)
-        # Assert
-        assert is_callable is True
-
-    def test_module_count_is_callable(self):
-        # Arrange
-        import scitex_etc.wait_key as module_under_test
-
-        # Act
-        is_callable = callable(module_under_test.count)
-        # Assert
-        assert is_callable is True
-
-    def test_module_wait_key_is_function(self):
+    def test_module_wait_key_is_a_python_function(self):
         # Arrange
         import scitex_etc.wait_key as module_under_test
 
@@ -327,7 +238,7 @@ class TestWaitKey:
         # Assert
         assert is_fn is True
 
-    def test_module_count_is_function(self):
+    def test_module_count_is_a_python_function(self):
         # Arrange
         import scitex_etc.wait_key as module_under_test
 
@@ -336,19 +247,7 @@ class TestWaitKey:
         # Assert
         assert is_fn is True
 
-    # ------------------------------------------------------------------
-    # function signatures
-    # ------------------------------------------------------------------
-    def test_wait_key_signature_has_one_parameter(self):
-        # Arrange
-        from scitex_etc.wait_key import wait_key
-
-        # Act
-        params = inspect.signature(wait_key).parameters
-        # Assert
-        assert len(params) == 1
-
-    def test_wait_key_signature_parameter_is_named_p(self):
+    def test_wait_key_signature_accepts_a_process_named_p(self):
         # Arrange
         from scitex_etc.wait_key import wait_key
 
@@ -357,42 +256,6 @@ class TestWaitKey:
         # Assert
         assert "p" in params
 
-    def test_count_signature_has_no_parameters(self):
-        # Arrange
-        from scitex_etc.wait_key import count
-
-        # Act
-        params = inspect.signature(count).parameters
-        # Assert
-        assert len(params) == 0
-
 
 if __name__ == "__main__":
-    import pytest
-
     pytest.main([os.path.abspath(__file__)])
-
-# --------------------------------------------------------------------------------
-# Start of Source Code from: src/scitex_etc/wait_key.py
-# --------------------------------------------------------------------------------
-# import multiprocessing
-# import time
-# import readchar
-#
-# def wait_key(p):
-#     key = "x"
-#     while key != "q":
-#         key = readchar.readchar()
-#         print(key)
-#     print("q was pressed.")
-#     p.terminate()
-#
-# def count():
-#     counter = 0
-#     while True:
-#         print(counter)
-#         time.sleep(1)
-#         counter += 1
-# --------------------------------------------------------------------------------
-# End of Source Code
-# --------------------------------------------------------------------------------
