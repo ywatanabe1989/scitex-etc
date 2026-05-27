@@ -1,7 +1,7 @@
 ---
 description: |
   [TOPIC] scitex-etc Python API
-  [DETAILS] Two public callables — wait_key() (block on single keypress) and count() (tally loop).
+  [DETAILS] Two public callables — wait_key(p, ...) (block until 'q', terminate process) and count(...) (infinite counter).
 tags: [scitex-etc-python-api]
 ---
 
@@ -21,27 +21,42 @@ scitex_etc.wait_key            # the submodule (needed for monkeypatching)
 scitex_etc.wait_key.wait_key   # the function inside it
 ```
 
-## `wait_key() -> str`
+## `wait_key(p, *, read_key=None, printer=print)`
 
-Block until a single key is pressed; return the character. No need to
-press Enter. POSIX implementation uses termios cbreak mode; Windows uses
-`msvcrt.getch`.
+Block until the user presses ``q``, then terminate process ``p``.
+Echoes each key as it is pressed; on ``q`` prints a notice and calls
+``p.terminate()``.
 
 ```python
-from scitex_etc import wait_key
-ch = wait_key()        # 'a', 'q', '\r', ...
+import multiprocessing
+from scitex_etc import wait_key, count
+
+p = multiprocessing.Process(target=count)
+p.start()
+wait_key(p)  # 'q' → prints "q was pressed." and terminates p
 ```
 
-## `count(stop_keys=("q",)) -> int`
+Parameters:
+- ``p`` — A process-like object exposing ``terminate()``.
+- ``read_key`` (optional) — Zero-arg callable returning the next key as a
+  string. Defaults to ``readchar.readchar``. Injectable test seam.
+- ``printer`` (optional) — Output sink. Defaults to ``print``. Injectable
+  test seam.
 
-Run a manual tally loop: each non-stop keypress increments a counter;
-pressing any key in `stop_keys` ends the loop and returns the total.
-Useful for hand-tagging events while watching a recording.
+## `count(*, printer=print, sleeper=time.sleep)`
+
+Print an incrementing counter forever, sleeping 1s between values.
 
 ```python
 from scitex_etc import count
-n = count(stop_keys=("q", "\x1b"))   # also Esc
+# Runs until the process is terminated externally
 ```
+
+Parameters:
+- ``printer`` (optional) — Output sink. Defaults to ``print``. Injectable
+  test seam.
+- ``sleeper`` (optional) — One-arg sleep callable. Defaults to
+  ``time.sleep``. Injectable so tests can run without real delay.
 
 ## Two import paths
 

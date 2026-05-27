@@ -1,39 +1,31 @@
 ---
 description: |
   [TOPIC] scitex-etc Quick start
-  [DETAILS] Single-keypress input — wait_key() blocks for any key, count() implements a tally loop.
+  [DETAILS] wait_key(p, ...) blocks until 'q' pressed then terminates process p; count(...) prints an incrementing counter forever.
 tags: [scitex-etc-quick-start]
 ---
 
 # Quick Start
 
-## Pause until any key is pressed
+## Run a counter and stop it by pressing 'q'
 
 ```python
-from scitex_etc import wait_key
+import multiprocessing
+from scitex_etc import wait_key, count
 
-print("Press any key to continue...")
-wait_key()             # returns the character that was pressed
-print("Continuing.")
-```
-
-Unlike `input()`, no Enter is required.
-
-## Manual count loop
-
-```python
-from scitex_etc import count
-
-# Increment a tally on each keypress; press q to quit
-total = count(stop_keys=("q",))
-print(f"Tallied: {total}")
+p = multiprocessing.Process(target=count)
+p.start()
+wait_key(p)  # Blocks until 'q' is pressed, then terminates the process
 ```
 
 ## Notes
 
-- Returns immediately on any key — no echo by default.
-- POSIX-only behavior may differ in some non-TTY contexts (CI, redirected
-  stdin); use a fallback when scripting non-interactively.
+- `wait_key` reads individual keypresses without requiring Enter. Runs until
+  the user presses ``q``, then calls ``p.terminate()``.
+- `count` prints an incrementing number once per second. It runs forever
+  and must be stopped externally (e.g. via ``wait_key`` in another process).
+- Both functions accept optional keyword-only arguments (``printer``,
+  ``read_key``, ``sleeper``) as injectable test seams.
 
 ## Next
 
