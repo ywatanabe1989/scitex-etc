@@ -39,16 +39,6 @@
 pip install scitex-etc
 ```
 
-## Architecture
-
-```
-scitex-etc/
-├── src/scitex_etc/
-│   ├── _wait_key.py     # cross-platform raw-stdin keypress
-│   └── _count.py        # countdown helper
-└── tests/
-```
-
 ## 1 Interfaces
 
 <details open>
@@ -57,35 +47,28 @@ scitex-etc/
 <br>
 
 ```python
+import multiprocessing
 from scitex_etc import wait_key, count
 
-# Block until a single key is pressed; returns the key as a string.
-key = wait_key()
-
-# Countdown helper — prints "5… 4… 3…" and waits a second between each.
-count(5)
+# Run the counter in a subprocess, wait for 'q' to stop it.
+p = multiprocessing.Process(target=count)
+p.start()
+wait_key(p)  # Blocks until 'q' is pressed, then terminates the process
 ```
 
 </details>
 
-## Demo
-
-```mermaid
-flowchart LR
-    User[User keypress] --> TTY{stdin is TTY?}
-    TTY -- yes --> Termios[termios raw mode]
-    TTY -- no --> Fallback[readline fallback]
-    Termios --> Key[key string]
-    Fallback --> Key
-```
-
 ## Quick Start
 
 ```python
+import multiprocessing
 from scitex_etc import wait_key, count
 
-key = wait_key()  # Wait for a single keypress
-count(5)          # Countdown timer
+# count() prints an incrementing counter forever (1 per second).
+# Run it in a subprocess and use wait_key() to stop on 'q'.
+p = multiprocessing.Process(target=count)
+p.start()
+wait_key(p)
 ```
 
 ## Part of SciTeX

@@ -1,9 +1,9 @@
 ---
 name: scitex-etc
 description: |
-  [WHAT] Miscellaneous SciTeX utilities — terminal single-keypress helpers (`wait_key`, `count`) for interactive scripts.
-  [WHEN] Pausing a script until any key is pressed (without Enter), implementing a simple manual-count loop via keypresses, or any getch-style input need.
-  [HOW] `from scitex_etc import wait_key, count` — call `wait_key()` to block on a key, `count()` to tally keypresses.
+  [WHAT] Miscellaneous SciTeX utilities — wait_key(p) blocks until 'q' pressed (terminates a process), count() prints an incrementing counter forever.
+  [WHEN] Pausing a script until 'q' is typed to cleanly terminate a background process, implementing a simple counter loop with injectable test seams, or needing unbuffered keypress reading.
+  [HOW] `from scitex_etc import wait_key, count` — call `wait_key(p)` to block on a process until 'q', `count(...)` to start an infinite counter.
 tags: [scitex-etc]
 primary_interface: python
 interfaces:
@@ -18,9 +18,11 @@ interfaces:
 
 > **Interfaces:** Python ⭐⭐⭐ (primary) · CLI — · MCP — · Skills ⭐ · Hook — · HTTP —
 
-Tiny grab-bag package. Current surface: two functions for reading a single
-keypress in interactive terminal programs. This package is intentionally minimal;
-do not expect a broad API.
+Tiny grab-bag package. Current surface: `wait_key(p)` — blocks reading keys
+until ``q`` is pressed, then terminates a process — and `count()` — prints an
+incrementing counter once per second forever. Both accept injectable
+keyword-only test seams. This package is intentionally minimal; do not expect
+a broad API.
 
 ## Installation & import (two equivalent paths)
 

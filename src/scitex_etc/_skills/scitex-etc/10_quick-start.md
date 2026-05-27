@@ -1,11 +1,11 @@
 ---
 description: |
-  [TOPIC] Quick Start
-  [DETAILS] Install, import, and two usage snippets covering wait_key and count.
+  [TOPIC] Quick Start (legacy)
+  [DETAILS] Legacy quick-start. Use 02_quick-start.md instead. wait_key(p) + count(...) usage with multiprocessing.
 tags: [scitex-etc-quick-start]
 ---
 
-<!-- 01_quick-start.md -->
+<!-- 01_quick-start.md (legacy, replaced by 02_quick-start.md) -->
 
 # scitex-etc — Quick Start
 
@@ -23,24 +23,15 @@ import scitex_etc
 
 ## Usage
 
-### Block until any key is pressed
+### Run a counter and stop it by pressing 'q'
 
 ```python
-from scitex_etc import wait_key
+import multiprocessing
+from scitex_etc import wait_key, count
 
-print("Press any key to continue...")
-wait_key()
-print("Got it!")
-```
-
-### Count keypresses interactively
-
-```python
-from scitex_etc import count
-
-# Returns an integer count after user finishes input.
-n = count()
-print(f"You pressed {n} keys")
+p = multiprocessing.Process(target=count)
+p.start()
+wait_key(p)
 ```
 
 That is the entire public surface. If you need richer interactive input, use
