@@ -39,6 +39,16 @@
 pip install scitex-etc
 ```
 
+## Architecture
+
+```
+scitex-etc/
+├── src/scitex_etc/
+│   ├── _wait_key.py     # cross-platform raw-stdin keypress
+│   └── _count.py        # countdown helper
+└── tests/
+```
+
 ## 1 Interfaces
 
 <details open>
@@ -57,6 +67,17 @@ wait_key(p)  # Blocks until 'q' is pressed, then terminates the process
 ```
 
 </details>
+
+## Demo
+
+```mermaid
+flowchart LR
+    User[User keypress] --> TTY{stdin is TTY?}
+    TTY -- yes --> Termios[termios raw mode]
+    TTY -- no --> Fallback[readline fallback]
+    Termios --> Key[key string]
+    Fallback --> Key
+```
 
 ## Quick Start
 
