@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>scitex_etc.wait_key &mdash; SciTeX Etc v0.1.7</title>
+  <title>scitex_etc.wait_key &mdash; SciTeX Etc v0.1.9</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
@@ -14,7 +14,7 @@
   
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=ca7ad2ea"></script>
+      <script src="../_static/documentation_options.js?v=8618f531"></script>
       <script src="../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -90,13 +90,37 @@
 <span id="scitex-etc-wait-key"></span><h1>scitex_etc.wait_key<a class="headerlink" href="#module-scitex_etc.wait_key" title="Link to this heading"></a></h1>
 <dl class="py function">
 <dt class="sig sig-object py" id="scitex_etc.wait_key.wait_key">
-<span class="sig-prename descclassname"><span class="pre">scitex_etc.wait_key.</span></span><span class="sig-name descname"><span class="pre">wait_key</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scitex_etc/wait_key.html#wait_key"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#scitex_etc.wait_key.wait_key" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<span class="sig-prename descclassname"><span class="pre">scitex_etc.wait_key.</span></span><span class="sig-name descname"><span class="pre">wait_key</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">read_key</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">printer</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">&lt;built-in</span> <span class="pre">function</span> <span class="pre">print&gt;</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scitex_etc/wait_key.html#wait_key"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#scitex_etc.wait_key.wait_key" title="Link to this definition"></a></dt>
+<dd><p>Block until the user presses <code class="docutils literal notranslate"><span class="pre">q</span></code>, then terminate process <code class="docutils literal notranslate"><span class="pre">p</span></code>.</p>
+<p>Echoes each key as it is pressed; on <code class="docutils literal notranslate"><span class="pre">q</span></code> prints a notice and calls
+<code class="docutils literal notranslate"><span class="pre">p.terminate()</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>p</strong> – A process-like object exposing <code class="docutils literal notranslate"><span class="pre">terminate()</span></code>.</p></li>
+<li><p><strong>read_key</strong> (<em>callable</em><em>, </em><em>optional</em>) – Zero-arg callable returning the next key as a string. Defaults to
+<code class="docutils literal notranslate"><span class="pre">readchar.readchar</span></code>. Injectable as a test seam (no mocks).</p></li>
+<li><p><strong>printer</strong> (<em>callable</em><em>, </em><em>optional</em>) – Output sink, defaults to the builtin <code class="docutils literal notranslate"><span class="pre">print</span></code>. Injectable so tests
+can record output without patching <code class="docutils literal notranslate"><span class="pre">builtins.print</span></code>.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="scitex_etc.wait_key.count">
-<span class="sig-prename descclassname"><span class="pre">scitex_etc.wait_key.</span></span><span class="sig-name descname"><span class="pre">count</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scitex_etc/wait_key.html#count"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#scitex_etc.wait_key.count" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<span class="sig-prename descclassname"><span class="pre">scitex_etc.wait_key.</span></span><span class="sig-name descname"><span class="pre">count</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">printer</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">&lt;built-in</span> <span class="pre">function</span> <span class="pre">print&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sleeper</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">&lt;built-in</span> <span class="pre">function</span> <span class="pre">sleep&gt;</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scitex_etc/wait_key.html#count"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#scitex_etc.wait_key.count" title="Link to this definition"></a></dt>
+<dd><p>Print an incrementing counter forever, sleeping 1s between values.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>printer</strong> (<em>callable</em><em>, </em><em>optional</em>) – Output sink, defaults to the builtin <code class="docutils literal notranslate"><span class="pre">print</span></code>. Injectable test seam.</p></li>
+<li><p><strong>sleeper</strong> (<em>callable</em><em>, </em><em>optional</em>) – One-arg sleep callable, defaults to <code class="docutils literal notranslate"><span class="pre">time.sleep</span></code>. Injectable so
+tests can run without real delay and bound the loop.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
 
 </section>
 
