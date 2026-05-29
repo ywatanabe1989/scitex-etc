@@ -4,8 +4,8 @@ build-backend = "hatchling.build"
 
 [project]
 name = "scitex-etc"
-version = "0.1.9"
-description = "Interactive keyboard input utilities (wait_key, count)"
+version = "0.1.10"
+description = "Small cross-cutting utilities: interactive keyboard input (wait_key, count), parameter-grid iteration (count_grids, yield_grids), and regex string search (search)"
 readme = "README.md"
 license = "AGPL-3.0-only"
 requires-python = ">=3.10"
