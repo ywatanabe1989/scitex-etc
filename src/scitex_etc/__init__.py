@@ -22,6 +22,8 @@ except ImportError:  # pragma: no cover — only on ancient Pythons
     __version__ = "0.0.0+local"
 
 from . import wait_key as _wait_key_mod
+from ._grid import count_grids, yield_grids
+from ._search import search
 from .wait_key import count
 from .wait_key import wait_key as _wait_key_func
 
@@ -30,6 +32,13 @@ from .wait_key import wait_key as _wait_key_func
 # and `patch("scitex_etc.wait_key.readchar...")` to work.
 wait_key = _wait_key_mod
 
-__all__ = ["__version__", "wait_key", "count"]
+__all__ = [
+    "__version__",
+    "wait_key",
+    "count",
+    "count_grids",
+    "yield_grids",
+    "search",
+]
 
 # EOF
