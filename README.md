@@ -68,6 +68,30 @@ wait_key(p)  # Blocks until 'q' is pressed, then terminates the process
 
 </details>
 
+<details>
+<summary><strong>Media handling (<code>scitex_etc.media.render</code>)</strong></summary>
+
+<br>
+
+```python
+from scitex_etc.media import render
+
+# Classify a file by its extension
+render.classify("fig.png")          # {"type": "image", "path": "fig.png", "ext": ".png"}
+
+# Detect media refs in tool output
+render.detect("Saved /proj/fig.png", root_path="/proj")
+# [{"type": "image", "path": "fig.png", "ext": ".png"}]
+
+# Render to a target: terminal (OSC overlay), chat, or markdown
+render.show("fig.png", target="markdown")  # "![fig.png](fig.png)"
+```
+
+Also available as a CLI (`python -m scitex_etc.media.render show|classify|detect`)
+and as MCP tools (`scitex_etc.media.render.mcp_server`).
+
+</details>
+
 ## Demo
 
 ```mermaid

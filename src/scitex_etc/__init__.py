@@ -21,6 +21,7 @@ try:
 except ImportError:  # pragma: no cover — only on ancient Pythons
     __version__ = "0.0.0+local"
 
+from . import media  # noqa: F401  — media handling (detect/classify/show)
 from . import wait_key as _wait_key_mod
 from ._grid import count_grids, yield_grids
 from ._search import search
@@ -39,6 +40,7 @@ __all__ = [
     "count_grids",
     "yield_grids",
     "search",
+    "media",
 ]
 
 # EOF
