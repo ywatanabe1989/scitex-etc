@@ -11,7 +11,7 @@ import argparse
 import json
 
 
-def main():
+def main(argv=None):
     parser = argparse.ArgumentParser(
         description="SciTeX Media Render — detect, classify, and display media"
     )
@@ -39,7 +39,7 @@ def main():
     det_p.add_argument("text", help="Text to scan for media paths")
     det_p.add_argument("--root", required=True, help="Project root path")
 
-    args = parser.parse_args()
+    args = parser.parse_args(argv)
 
     if args.command == "show":
         from . import show
