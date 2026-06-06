@@ -1,7 +1,7 @@
 ---
 description: |
   [TOPIC] scitex-etc Python API
-  [DETAILS] Two public callables — wait_key(p, ...) (block until 'q', terminate process) and count(...) (infinite counter).
+  [DETAILS] Public callables — count_grids, yield_grids, search — plus the media submodule (see scitex-etc-media skill).
 tags: [scitex-etc-python-api]
 ---
 
@@ -10,53 +10,44 @@ tags: [scitex-etc-python-api]
 ## Imports
 
 ```python
-from scitex_etc import wait_key, count
+from scitex_etc import count_grids, yield_grids, search
+from scitex_etc.media import render  # detect / classify / show
 ```
 
-The submodule itself is also exposed:
+## `count_grids(grid)`
+
+Return the total number of parameter combinations in a grid dict.
 
 ```python
-import scitex_etc
-scitex_etc.wait_key            # the submodule (needed for monkeypatching)
-scitex_etc.wait_key.wait_key   # the function inside it
+from scitex_etc import count_grids
+count_grids({"lr": [1e-3, 1e-2], "batch": [32, 64]})  # 4
 ```
 
-## `wait_key(p, *, read_key=None, printer=print)`
+## `yield_grids(grid)`
 
-Block until the user presses ``q``, then terminate process ``p``.
-Echoes each key as it is pressed; on ``q`` prints a notice and calls
-``p.terminate()``.
+Yield each parameter combination of a grid dict as its own dict.
 
 ```python
-import multiprocessing
-from scitex_etc import wait_key, count
-
-p = multiprocessing.Process(target=count)
-p.start()
-wait_key(p)  # 'q' → prints "q was pressed." and terminates p
+from scitex_etc import yield_grids
+for combo in yield_grids({"lr": [1e-3, 1e-2], "batch": [32, 64]}):
+    ...
 ```
 
-Parameters:
-- ``p`` — A process-like object exposing ``terminate()``.
-- ``read_key`` (optional) — Zero-arg callable returning the next key as a
-  string. Defaults to ``readchar.readchar``. Injectable test seam.
-- ``printer`` (optional) — Output sink. Defaults to ``print``. Injectable
-  test seam.
+## `search(pattern, text)`
 
-## `count(*, printer=print, sleeper=time.sleep)`
-
-Print an incrementing counter forever, sleeping 1s between values.
+Small substring/regex search helper.
 
 ```python
-from scitex_etc import count
-# Runs until the process is terminated externally
+from scitex_etc import search
+search(r"error|warn", "WARN something")
 ```
 
-Parameters:
-- ``printer`` (optional) — Output sink. Defaults to ``print``. Injectable
-  test seam.
-- ``sleeper`` (optional) — One-arg sleep callable. Defaults to
-  ``time.sleep``. Injectable so tests can run without real delay.
+## `media.render`
+
+See the [scitex-etc-media](../scitex-etc-media/SKILL.md) skill bundle:
+`render.classify(path)`, `render.detect(text, root_path=...)`,
+`render.show(path, target=...)`, and the
+`python -m scitex_etc.media.render` CLI / MCP server.
 
 ## Two import paths
 
@@ -64,7 +55,3 @@ Parameters:
 import scitex_etc        # standalone
 import scitex.etc        # umbrella (requires `pip install scitex`)
 ```
-
-The submodule is intentionally minimal — do not expect the surface to
-grow. New unrelated utilities should live in dedicated `scitex-*`
-packages.

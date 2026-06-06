@@ -1,31 +1,43 @@
 ---
 description: |
   [TOPIC] scitex-etc Quick start
-  [DETAILS] wait_key(p, ...) blocks until 'q' pressed then terminates process p; count(...) prints an incrementing counter forever.
+  [DETAILS] count_grids/yield_grids iterate parameter combinations; search does substring/regex matching; media.render detects/classifies/displays media references.
 tags: [scitex-etc-quick-start]
 ---
 
 # Quick Start
 
-## Run a counter and stop it by pressing 'q'
+## Iterate a parameter grid
 
 ```python
-import multiprocessing
-from scitex_etc import wait_key, count
+from scitex_etc import count_grids, yield_grids
 
-p = multiprocessing.Process(target=count)
-p.start()
-wait_key(p)  # Blocks until 'q' is pressed, then terminates the process
+grid = {"lr": [1e-3, 1e-2], "batch": [32, 64]}
+print(count_grids(grid))                # 4
+for combo in yield_grids(grid):
+    print(combo)
 ```
 
-## Notes
+## Pattern search
 
-- `wait_key` reads individual keypresses without requiring Enter. Runs until
-  the user presses ``q``, then calls ``p.terminate()``.
-- `count` prints an incrementing number once per second. It runs forever
-  and must be stopped externally (e.g. via ``wait_key`` in another process).
-- Both functions accept optional keyword-only arguments (``printer``,
-  ``read_key``, ``sleeper``) as injectable test seams.
+```python
+from scitex_etc import search
+
+hits = search(r"error|warn", "log line: WARN something")
+```
+
+## Media reference detection
+
+```python
+from scitex_etc.media import render
+
+render.classify("fig.png")                 # {"type": "image", ...}
+render.detect(out, root_path="/proj")      # list of detected media refs
+render.show("fig.png", target="markdown")  # "![fig.png](fig.png)"
+```
+
+See [../scitex-etc-media/01_render-detect-classify-show.md](../scitex-etc-media/01_render-detect-classify-show.md)
+for the full media surface.
 
 ## Next
 

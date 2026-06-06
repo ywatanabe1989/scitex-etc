@@ -1,22 +1,22 @@
 #!/usr/bin/env python3
-"""Quickstart for scitex-etc: explore the wait_key submodule API."""
+"""Quickstart for scitex-etc: explore the media submodule API."""
 
 import scitex_etc
-import scitex_etc.wait_key as wait_key_mod
-from scitex_etc.wait_key import count, wait_key
+import scitex_etc.media as media_mod
+from scitex_etc.media.render import classify, detect
 
 
 def main() -> int:
     print(f"scitex_etc.__all__: {scitex_etc.__all__}")
-    print(f"wait_key submodule: {wait_key_mod.__name__}")
+    print(f"media submodule: {media_mod.__name__}")
     print(
-        f"wait_key submodule public API: "
-        f"{[n for n in dir(wait_key_mod) if not n.startswith('_')]}"
+        f"media.render public API: "
+        f"{[n for n in dir(media_mod.render) if not n.startswith('_')]}"
     )
 
-    # Show that the API is importable; we don't invoke wait_key (would block).
-    print(f"\nwait_key function: {wait_key.__name__}(p)")
-    print(f"count function: {count.__name__}()")
+    # Show that the API is importable.
+    print(f"\nclassify function: {classify.__name__}(path)")
+    print(f"detect function: {detect.__name__}(text)")
 
     return 0
 

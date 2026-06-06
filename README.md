@@ -6,7 +6,7 @@
   </a>
 </p>
 
-<p align="center"><b>Interactive keyboard input utilities for the SciTeX ecosystem.</b></p>
+<p align="center"><b>Cross-cutting utilities for the SciTeX ecosystem: parameter-grid iteration, pattern search, and media-reference detection/display.</b></p>
 
 <p align="center">
   <a href="https://scitex-etc.readthedocs.io/">Full Documentation</a> · <code>uv pip install scitex-etc[all]</code>
@@ -31,7 +31,9 @@
 
 | # | Problem | Solution |
 |---|---------|----------|
-| 1 | **Scripts that pause for a keypress need raw-stdin + termios gymnastics** — 15 lines of OS-dependent boilerplate | **`wait_key()` / `count()`** — one import; handles Linux/macOS/Windows; falls back cleanly when stdin isn't a TTY |
+| 1 | **Hyperparameter sweeps need ad-hoc nested loops** | **`count_grids` / `yield_grids`** — count and iterate parameter combinations from a `{name: [values]}` dict |
+| 2 | **Detecting/displaying media references (figures, data files) in chat / terminal / markdown contexts requires repeated regex + extension juggling** | **`scitex_etc.media.render`** — `classify`, `detect`, `show` with target-specific rendering (terminal OSC, AI chat pane, markdown embed); also a CLI and MCP server |
+| 3 | **Substring + regex search needs branching boilerplate** | **`search`** — single helper that handles both |
 
 ## Installation
 
@@ -44,8 +46,9 @@ pip install scitex-etc
 ```
 scitex-etc/
 ├── src/scitex_etc/
-│   ├── _wait_key.py     # cross-platform raw-stdin keypress
-│   └── _count.py        # countdown helper
+│   ├── _grid.py            # count_grids / yield_grids
+│   ├── _search.py          # search
+│   └── media/render/       # classify / detect / show + CLI + MCP server
 └── tests/
 ```
 
@@ -57,13 +60,14 @@ scitex-etc/
 <br>
 
 ```python
-import multiprocessing
-from scitex_etc import wait_key, count
+from scitex_etc import count_grids, yield_grids, search
 
-# Run the counter in a subprocess, wait for 'q' to stop it.
-p = multiprocessing.Process(target=count)
-p.start()
-wait_key(p)  # Blocks until 'q' is pressed, then terminates the process
+grid = {"lr": [1e-3, 1e-2], "batch": [32, 64]}
+print(count_grids(grid))           # 4
+for combo in yield_grids(grid):    # iterate every combination
+    ...
+
+hits = search(r"error|warn", "log line: WARN")
 ```
 
 </details>
@@ -92,28 +96,16 @@ and as MCP tools (`scitex_etc.media.render.mcp_server`).
 
 </details>
 
-## Demo
-
-```mermaid
-flowchart LR
-    User[User keypress] --> TTY{stdin is TTY?}
-    TTY -- yes --> Termios[termios raw mode]
-    TTY -- no --> Fallback[readline fallback]
-    Termios --> Key[key string]
-    Fallback --> Key
-```
-
 ## Quick Start
 
 ```python
-import multiprocessing
-from scitex_etc import wait_key, count
+from scitex_etc import yield_grids
+from scitex_etc.media import render
 
-# count() prints an incrementing counter forever (1 per second).
-# Run it in a subprocess and use wait_key() to stop on 'q'.
-p = multiprocessing.Process(target=count)
-p.start()
-wait_key(p)
+for combo in yield_grids({"lr": [1e-3, 1e-2], "seed": [0, 1]}):
+    print(combo)
+
+render.show("results/fig.png", target="markdown")
 ```
 
 ## Part of SciTeX

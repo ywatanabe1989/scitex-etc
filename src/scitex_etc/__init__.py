@@ -2,10 +2,21 @@
 # File: src/scitex_etc/__init__.py
 
 """
-Utility functions for miscellaneous tasks.
+SciTeX miscellaneous utility helpers.
 
-This module provides utility functions that don't fit into other categories,
-such as keyboard input handling for interactive programs.
+Cross-cutting helpers that don't fit a domain-specific package:
+
+- Combinatorial parameter-grid iteration (``count_grids`` / ``yield_grids``)
+- ``search`` — small substring/pattern search helper.
+- ``media`` — chat-pane / terminal / markdown media-reference detection
+  & display (``media.render.{classify, detect, show, MEDIA_EXTENSIONS}``,
+  plus a CLI and an MCP server). Ported from ``scitex.media`` per
+  ADR-0001 (scitex-python repo).
+
+Historical surface (removed in v0.3.0):
+
+- ``wait_key`` / ``count``: moved to ``scitex-parallel`` (unified with
+  ``scitex_gen.wait_key``).
 """
 
 from __future__ import annotations
@@ -22,21 +33,11 @@ except ImportError:  # pragma: no cover — only on ancient Pythons
     __version__ = "0.0.0+local"
 
 from . import media  # noqa: F401  — media handling (detect/classify/show)
-from . import wait_key as _wait_key_mod
 from ._grid import count_grids, yield_grids
 from ._search import search
-from .wait_key import count
-from .wait_key import wait_key as _wait_key_func
-
-# Expose the submodule (not the function) so that `scitex_etc.wait_key`
-# resolves to the module — required for `from scitex_etc.wait_key import wait_key`
-# and `patch("scitex_etc.wait_key.readchar...")` to work.
-wait_key = _wait_key_mod
 
 __all__ = [
     "__version__",
-    "wait_key",
-    "count",
     "count_grids",
     "yield_grids",
     "search",
