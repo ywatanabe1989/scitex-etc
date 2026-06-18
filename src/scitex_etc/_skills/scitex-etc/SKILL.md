@@ -1,28 +1,31 @@
 ---
 name: scitex-etc
 description: |
-  [WHAT] Miscellaneous SciTeX utilities — wait_key(p) blocks until 'q' pressed (terminates a process), count() prints an incrementing counter forever.
-  [WHEN] Pausing a script until 'q' is typed to cleanly terminate a background process, implementing a simple counter loop with injectable test seams, or needing unbuffered keypress reading.
-  [HOW] `from scitex_etc import wait_key, count` — call `wait_key(p)` to block on a process until 'q', `count(...)` to start an infinite counter.
+  [WHAT] Miscellaneous SciTeX utilities — count_grids/yield_grids for parameter-grid iteration, search for substring/regex matching, and media.render for media-reference detection/display (see scitex-etc-media).
+  [WHEN] Sweeping over a parameter grid, doing a small pattern search over text, or detecting/classifying/displaying media references in chat-pane / terminal / markdown contexts.
+  [HOW] `from scitex_etc import count_grids, yield_grids, search` for the helpers; `from scitex_etc.media import render` for media (see the scitex-etc-media sub-skill).
 tags: [scitex-etc]
 primary_interface: python
 interfaces:
   python: 3
-  cli: 0
-  mcp: 0
+  cli: 1
+  mcp: 1
   skills: 1
   http: 0
 ---
 
 # scitex-etc
 
-> **Interfaces:** Python ⭐⭐⭐ (primary) · CLI — · MCP — · Skills ⭐ · Hook — · HTTP —
+> **Interfaces:** Python ⭐⭐⭐ (primary) · CLI ⭐ · MCP ⭐ · Skills ⭐ · Hook — · HTTP —
 
-Tiny grab-bag package. Current surface: `wait_key(p)` — blocks reading keys
-until ``q`` is pressed, then terminates a process — and `count()` — prints an
-incrementing counter once per second forever. Both accept injectable
-keyword-only test seams. This package is intentionally minimal; do not expect
-a broad API.
+Tiny grab-bag package for cross-cutting helpers that don't fit a
+domain-specific package:
+
+- `count_grids(...)` / `yield_grids(...)` — combinatorial parameter-grid
+  iteration.
+- `search(pattern, text)` — small substring/regex search helper.
+- `media.render` — chat-pane / terminal / markdown media-reference
+  detection & display (see the `scitex-etc-media` sub-skill).
 
 ## Installation & import (two equivalent paths)
 
@@ -32,11 +35,11 @@ runtime; which one a user has depends on their install choice.
 ```python
 # Standalone — pip install scitex-etc
 import scitex_etc
-scitex_etc.wait_key(...)
+scitex_etc.count_grids(...)
 
 # Umbrella — pip install scitex
 import scitex.etc
-scitex.etc.wait_key(...)
+scitex.etc.count_grids(...)
 ```
 
 `pip install scitex-etc` alone does NOT expose the `scitex` namespace;
@@ -49,9 +52,6 @@ rule and empirical verification table.
 ## Sub-skills
 
 - [01_installation.md](01_installation.md) — pip install + smoke verify
-- [02_quick-start.md](02_quick-start.md) — wait_key + count examples
+- [02_quick-start.md](02_quick-start.md) — count_grids / search / media examples
 - [03_python-api.md](03_python-api.md) — public functions with signatures
-- [10_quick-start.md](10_quick-start.md) — legacy quick-start (kept for context)
-- [11_python-api.md](11_python-api.md) — legacy API notes (kept for context)
-
-No CLI, no MCP tools, no additional modules.
+- [../scitex-etc-media/SKILL.md](../scitex-etc-media/SKILL.md) — media.render skill bundle
