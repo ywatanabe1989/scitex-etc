@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "scitex-etc"
-version = "0.2.0"
+version = "0.2.1"
 description = "Small cross-cutting utilities: interactive keyboard input (wait_key, count), parameter-grid iteration (count_grids, yield_grids), regex string search (search), and media handling (detect/classify/show)"
 readme = "README.md"
 license = "AGPL-3.0-only"
