@@ -4,8 +4,8 @@ build-backend = "hatchling.build"
 
 [project]
 name = "scitex-etc"
-version = "0.1.6"
-description = "Interactive keyboard input utilities (wait_key, count)"
+version = "0.2.1"
+description = "Small cross-cutting utilities: interactive keyboard input (wait_key, count), parameter-grid iteration (count_grids, yield_grids), regex string search (search), and media handling (detect/classify/show)"
 readme = "README.md"
 license = "AGPL-3.0-only"
 requires-python = ">=3.10"
@@ -29,7 +29,7 @@ dependencies = [
 
 [project.optional-dependencies]
 dev = [
-    "scitex-dev",
+    "scitex-dev>=0.11.7",
     "pytest",
     "pytest-cov",
     "ruff",
@@ -62,6 +62,11 @@ packages = ["src/scitex_etc"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+
+[tool.coverage.run]
+parallel = true
+source = ["scitex_etc"]
+concurrency = ["multiprocessing", "thread"]
 
 [tool.scitex-linter]
 library_dirs = ["src", "tests", "examples"]

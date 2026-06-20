@@ -1,25 +1,28 @@
 ---
 name: scitex-etc
-description: Miscellaneous SciTeX utilities — terminal single-keypress helpers for interactive scripts. Public API (2 symbols) — `wait_key()` (block until any key is pressed; returns the character or key code) and `count()` (read keys in a loop and return tallies; useful for quick manual-labeling or progress scripts in terminals). No CLI, no MCP tools, intentionally minimal grab-bag surface. Drop-in replacement for `input()` (which requires Enter), hand-rolled `termios`+`tty.setraw()` recipes for unbuffered stdin, the `getch`/`getkey`/`readchar` PyPI packages, and bespoke keypress-tallying loops in experiment-control scripts. Use whenever the user asks to "pause the script until the user presses a key", "read a keypress without Enter", "implement a simple manual-count loop via keypresses", or mentions `wait_key`, `scitex.etc`, getch-style input.
-user-invocable: false
+description: |
+  [WHAT] Miscellaneous SciTeX utilities — wait_key(p) blocks until 'q' pressed (terminates a process), count() prints an incrementing counter forever.
+  [WHEN] Pausing a script until 'q' is typed to cleanly terminate a background process, implementing a simple counter loop with injectable test seams, or needing unbuffered keypress reading.
+  [HOW] `from scitex_etc import wait_key, count` — call `wait_key(p)` to block on a process until 'q', `count(...)` to start an infinite counter.
+tags: [scitex-etc]
 primary_interface: python
 interfaces:
   python: 3
   cli: 0
   mcp: 0
   skills: 1
-  hook: 0
   http: 0
-tags: [scitex-etc, scitex-package]
 ---
 
 # scitex-etc
 
 > **Interfaces:** Python ⭐⭐⭐ (primary) · CLI — · MCP — · Skills ⭐ · Hook — · HTTP —
 
-Tiny grab-bag package. Current surface: two functions for reading a single
-keypress in interactive terminal programs. This package is intentionally minimal;
-do not expect a broad API.
+Tiny grab-bag package. Current surface: `wait_key(p)` — blocks reading keys
+until ``q`` is pressed, then terminates a process — and `count()` — prints an
+incrementing counter once per second forever. Both accept injectable
+keyword-only test seams. This package is intentionally minimal; do not expect
+a broad API.
 
 ## Installation & import (two equivalent paths)
 
@@ -45,7 +48,10 @@ rule and empirical verification table.
 
 ## Sub-skills
 
-- [01_quick-start.md](01_quick-start.md) — install, import, two usage snippets
-- [02_python-api.md](02_python-api.md) — public functions with signatures
+- [01_installation.md](01_installation.md) — pip install + smoke verify
+- [02_quick-start.md](02_quick-start.md) — wait_key + count examples
+- [03_python-api.md](03_python-api.md) — public functions with signatures
+- [10_quick-start.md](10_quick-start.md) — legacy quick-start (kept for context)
+- [11_python-api.md](11_python-api.md) — legacy API notes (kept for context)
 
 No CLI, no MCP tools, no additional modules.

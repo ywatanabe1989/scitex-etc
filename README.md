@@ -1,15 +1,5 @@
 # scitex-etc
 
-<!-- scitex-badges:start -->
-[![PyPI](https://img.shields.io/pypi/v/scitex-etc.svg)](https://pypi.org/project/scitex-etc/)
-[![Python](https://img.shields.io/pypi/pyversions/scitex-etc.svg)](https://pypi.org/project/scitex-etc/)
-[![Tests](https://github.com/ywatanabe1989/scitex-etc/actions/workflows/test.yml/badge.svg)](https://github.com/ywatanabe1989/scitex-etc/actions/workflows/test.yml)
-[![Install Test](https://github.com/ywatanabe1989/scitex-etc/actions/workflows/install-test.yml/badge.svg)](https://github.com/ywatanabe1989/scitex-etc/actions/workflows/install-test.yml)
-[![Coverage](https://codecov.io/gh/ywatanabe1989/scitex-etc/graph/badge.svg)](https://codecov.io/gh/ywatanabe1989/scitex-etc)
-[![Docs](https://readthedocs.org/projects/scitex-etc/badge/?version=latest)](https://scitex-etc.readthedocs.io/en/latest/)
-[![License: AGPL v3](https://img.shields.io/badge/license-AGPL_v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
-<!-- scitex-badges:end -->
-
 <p align="center">
   <a href="https://scitex.ai">
     <img src="docs/scitex-logo-blue-cropped.png" alt="SciTeX" width="400">
@@ -19,8 +9,21 @@
 <p align="center"><b>Interactive keyboard input utilities for the SciTeX ecosystem.</b></p>
 
 <p align="center">
-  <a href="https://scitex-etc.readthedocs.io/">Full Documentation</a> · <code>pip install scitex-etc</code>
+  <a href="https://scitex-etc.readthedocs.io/">Full Documentation</a> · <code>uv pip install scitex-etc[all]</code>
 </p>
+
+<!-- scitex-badges:start -->
+<p align="center">
+  <a href="https://pypi.org/project/scitex-etc/"><img src="https://img.shields.io/pypi/v/scitex-etc?label=pypi" alt="pypi"></a>
+  <a href="https://pypi.org/project/scitex-etc/"><img src="https://img.shields.io/pypi/pyversions/scitex-etc?label=python" alt="python"></a>
+  <a href="https://github.com/ywatanabe1989/scitex-etc/actions/workflows/rtd-sphinx-build-on-ubuntu-latest.yml"><img src="https://img.shields.io/github/actions/workflow/status/ywatanabe1989/scitex-etc/rtd-sphinx-build-on-ubuntu-latest.yml?branch=develop&label=docs" alt="docs"></a>
+</p>
+<p align="center">
+  <a href="https://github.com/ywatanabe1989/scitex-etc/actions/workflows/pytest-matrix-on-ubuntu-py3-11-3-12-3-13.yml"><img src="https://img.shields.io/github/actions/workflow/status/ywatanabe1989/scitex-etc/pytest-matrix-on-ubuntu-py3-11-3-12-3-13.yml?branch=develop&label=tests" alt="tests"></a>
+  <a href="https://github.com/ywatanabe1989/scitex-etc/actions/workflows/import-smoke-on-ubuntu-py3-12.yml"><img src="https://img.shields.io/github/actions/workflow/status/ywatanabe1989/scitex-etc/import-smoke-on-ubuntu-py3-12.yml?branch=develop&label=install-check" alt="install-check"></a>
+  <a href="https://codecov.io/gh/ywatanabe1989/scitex-etc"><img src="https://img.shields.io/codecov/c/github/ywatanabe1989/scitex-etc/develop?label=cov" alt="cov"></a>
+</p>
+<!-- scitex-badges:end -->
 
 ---
 
@@ -36,33 +39,82 @@
 pip install scitex-etc
 ```
 
-## Quick Start
+## Architecture
 
-```python
-from scitex_etc import wait_key, count
-
-key = wait_key()  # Wait for a single keypress
-count(5)          # Countdown timer
+```
+scitex-etc/
+├── src/scitex_etc/
+│   ├── _wait_key.py     # cross-platform raw-stdin keypress
+│   └── _count.py        # countdown helper
+└── tests/
 ```
 
 ## 1 Interfaces
 
-<details>
+<details open>
 <summary><strong>Python API</strong></summary>
 
 <br>
 
 ```python
+import multiprocessing
 from scitex_etc import wait_key, count
 
-# Block until a single key is pressed; returns the key as a string.
-key = wait_key()
-
-# Countdown helper — prints "5… 4… 3…" and waits a second between each.
-count(5)
+# Run the counter in a subprocess, wait for 'q' to stop it.
+p = multiprocessing.Process(target=count)
+p.start()
+wait_key(p)  # Blocks until 'q' is pressed, then terminates the process
 ```
 
 </details>
+
+<details>
+<summary><strong>Media handling (<code>scitex_etc.media.render</code>)</strong></summary>
+
+<br>
+
+```python
+from scitex_etc.media import render
+
+# Classify a file by its extension
+render.classify("fig.png")          # {"type": "image", "path": "fig.png", "ext": ".png"}
+
+# Detect media refs in tool output
+render.detect("Saved /proj/fig.png", root_path="/proj")
+# [{"type": "image", "path": "fig.png", "ext": ".png"}]
+
+# Render to a target: terminal (OSC overlay), chat, or markdown
+render.show("fig.png", target="markdown")  # "![fig.png](fig.png)"
+```
+
+Also available as a CLI (`python -m scitex_etc.media.render show|classify|detect`)
+and as MCP tools (`scitex_etc.media.render.mcp_server`).
+
+</details>
+
+## Demo
+
+```mermaid
+flowchart LR
+    User[User keypress] --> TTY{stdin is TTY?}
+    TTY -- yes --> Termios[termios raw mode]
+    TTY -- no --> Fallback[readline fallback]
+    Termios --> Key[key string]
+    Fallback --> Key
+```
+
+## Quick Start
+
+```python
+import multiprocessing
+from scitex_etc import wait_key, count
+
+# count() prints an incrementing counter forever (1 per second).
+# Run it in a subprocess and use wait_key() to stop on 'q'.
+p = multiprocessing.Process(target=count)
+p.start()
+wait_key(p)
+```
 
 ## Part of SciTeX
 
